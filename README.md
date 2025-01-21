@@ -79,8 +79,9 @@ The Recipe Suggestion App is an innovative platform designed to simplify meal pr
 ## Usage
 1. Upload an image of ingredients or manually input them.
 2. View recipe suggestions ranked by relevance.
-3. Explore details like missing ingredients, servings, and preparation time.
-4. Navigate to detailed instructions for the selected recipe.
+3. Explore details like  ingredients, servings.
+4. Choose the Dietary Preferences.
+5. Navigate to detailed instructions for the selected recipe.
 
 ## Challenges and Solutions
 
@@ -114,9 +115,6 @@ We welcome contributions! Please follow these steps:
    git push origin feature-name
    ```
 5. Open a pull request.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
 
 ---
 
