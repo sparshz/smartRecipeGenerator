@@ -1,71 +1,105 @@
+
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Button, StyleSheet, Animated, Easing,TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Easing,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+} from 'react-native';
 import LottieView from 'lottie-react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+
+const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
-  // Animation states
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Opacity
-  const slideAnim = useRef(new Animated.Value(50)).current; // Slide from the bottom
-
-  // Start animation on component mount
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start();
-
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 1000,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start();
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1000,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      })
+    ]).start();
   }, []);
 
   return (
     <View style={styles.container}>
-      {/* Lottie animation */}
       <View style={styles.animationContainer}>
         <LottieView
           source={require('../assets/animations/food.json')}
           autoPlay
           loop
-          style={{height:300, width:300,marginTop:-150}}
-        // Add this style to control the size
+          style={styles.lottie}
         />
       </View>
 
-      {/* Animated Title */}
-      <Animated.Text style={[styles.title, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        Smart Recipe Generator
-      </Animated.Text>
+      <View style={styles.semiCircleContainer}>
+        <View style={styles.semiCircle} />
+        
+        <View style={styles.contentOverlay}>
+          <Animated.View
+            style={[
+              styles.logoContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
+            <Image
+              source={require('../assets/images/logosnapsss.png')}
+              style={styles.logo}
+              // resizeMode="contain"
 
-      {/* Animated Button */}
-      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
-        {/* <View style={{borderWidth:2,borderRadius:15}}>
+            />
+          </Animated.View>
 
-        <Button
-          title="Discover Recipies"
-          onPress={() => navigation.navigate('IngredientRecognition')}
-          color="#f48fb1"
-          />
-          </View> */}
+          <Animated.Text
+            style={[
+              styles.title,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
+            SnapChef
+          </Animated.Text>
 
-<View style={styles.buttonWrapper}>
-        <TouchableOpacity
-          style={styles.button}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('IngredientRecognition')}
-        >
-           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-    <Text style={styles.buttonText}> Discover Recipes ? </Text>
-  </View>
-        </TouchableOpacity>
+          <Animated.View
+            style={[
+              styles.buttonContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('IngredientRecognition')}
+            >
+              <Text style={styles.buttonText}>
+                Discover Recipes ?
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
       </View>
-      </Animated.View>
     </View>
   );
 };
@@ -73,52 +107,85 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ffebee', // Soft pink background
-    paddingHorizontal: 20,
+    backgroundColor: '#ffebee',
   },
   animationContainer: {
-    // height: 750,  // Adjust the height and width for the animation
-    // width: 350,
-    marginBottom: 30,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop:-20,
+    marginTop: 150,
+    height: 300,
   },
   lottie: {
-    // width: 350,  // Make sure the width and height are set correctly
-    // height: 350,
+    height: 300,
+    width: 300,
+  },
+  semiCircleContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  semiCircle: {
+    position: 'absolute',
+    bottom: 0,
+    width: width * 2,
+    height: width * 2,
+    borderRadius: width,
+    backgroundColor: '#ff9a8b',
+    alignSelf: 'center',
+    transform: [
+      { translateX: -width / 2.7 },
+      { translateY: width },
+    ],
+    opacity: 0.9,
+  },
+  contentOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    paddingBottom: 100,
+  },
+  logoContainer: {
+    marginBottom: -60,
+    alignItems: 'center',
+    height:200,
+    width:200
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 5,
   },
   title: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: '700',
-    color: '#d81b60', // Bold, dark pink color for the title
+    color: '#ffffff',
     marginBottom: 30,
     textAlign: 'center',
-    fontFamily: 'sans-serif-medium', // Stylish font
+    fontFamily: 'sans-serif-medium',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
-  buttonWrapper: {
-    // borderWidth: 2,
-    // borderColor: '#f48fb1', // Same as the button's primary color
-    borderRadius: 15,
-    overflow: 'hidden', // Ensures button stays within border shape
+  buttonContainer: {
+    width: '80%',
+    alignItems: 'center',
   },
   button: {
-    backgroundColor: '#fb5607', // Solid pink background
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    elevation: 5, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    backgroundColor: '#fb5607',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    minWidth: 200,
   },
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff', // White text for contrast
+    color: '#ffffff',
     textAlign: 'center',
   },
 });

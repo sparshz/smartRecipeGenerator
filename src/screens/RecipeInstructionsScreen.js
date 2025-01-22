@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,29 +6,29 @@ import {
   ActivityIndicator,
   Alert,
   SafeAreaView,
+  Image,
+  ScrollView,
 } from "react-native";
-import {SPOONACULAR_API_KEY} from '@env'
+import React, { useState, useEffect } from "react";
 
 const RecipeInstructionsScreen = ({ route }) => {
   const { recipeId, recipeTitle } = route.params;
   const [instructions, setInstructions] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log("top ki id" , recipeId);
 
   useEffect(() => {
     const fetchInstructions = async () => {
-      const url = `https://api.spoonacular.com/recipes/${recipeId}/analyzedInstructions?apiKey=${SPOONACULAR_API_KEY}`;
-
+      const apiKey = "289ecaf456ae4510984e0352ace95b8d";
+      const url = `https://api.spoonacular.com/recipes/${recipeId}/analyzedInstructions?apiKey=${apiKey}`;
       try {
         const response = await fetch(url);
-
         if (!response.ok) {
           throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
-
         const data = await response.json();
-
-        if (data.length === 0 || !data[0]?.steps) {
+        
+        if (data.length === 0) {
           Alert.alert(
             "No Instructions",
             `This recipe (${recipeTitle}) has no instructions available.`
@@ -37,6 +36,17 @@ const RecipeInstructionsScreen = ({ route }) => {
           setInstructions([]);
         } else {
           setInstructions(data[0].steps);
+          
+          // Extract unique ingredients from all steps
+          const uniqueIngredients = new Map();
+          data[0].steps.forEach(step => {
+            step.ingredients?.forEach(ingredient => {
+              if (!uniqueIngredients.has(ingredient.id)) {
+                uniqueIngredients.set(ingredient.id, ingredient);
+              }
+            });
+          });
+          setIngredients(Array.from(uniqueIngredients.values()));
         }
       } catch (error) {
         console.error("Error fetching recipe instructions:", error);
@@ -48,9 +58,20 @@ const RecipeInstructionsScreen = ({ route }) => {
         setLoading(false);
       }
     };
-
     fetchInstructions();
   }, [recipeId]);
+
+  const renderIngredientItem = ({ item }) => (
+    <View style={styles.ingredientCard}>
+      <Image
+        source={{ 
+          uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` 
+        }}
+        style={styles.ingredientImage}
+      />
+      <Text style={styles.ingredientName}>{item.localizedName}</Text>
+    </View>
+  );
 
   if (loading) {
     return (
@@ -63,46 +84,92 @@ const RecipeInstructionsScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>{recipeTitle}</Text>
-      {instructions.length === 0 ? (
-        <Text style={styles.noDataText}>
-          No instructions available for this recipe.
-        </Text>
-      ) : (
-        <FlatList
-          data={instructions}
-          keyExtractor={(item) => item.number.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.stepCard}>
-              <Text style={styles.stepNumber}>Step {item.number}</Text>
-              <Text style={styles.stepText}>{item.step}</Text>
-            </View>
+      <ScrollView>
+        <Text style={styles.title}>{recipeTitle}</Text>
+        
+        {/* Ingredients Section */}
+        <View style={styles.ingredientsSection}>
+          <Text style={styles.sectionTitle}>Ingredients</Text>
+          <FlatList
+            data={ingredients}
+            renderItem={renderIngredientItem}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={3}
+            scrollEnabled={false}
+            contentContainerStyle={styles.ingredientsGrid}
+          />
+        </View>
+
+        {/* Instructions Section */}
+        <View style={styles.instructionsSection}>
+          <Text style={styles.sectionTitle}>Instructions</Text>
+          {instructions.length === 0 ? (
+            <Text style={styles.noDataText}>
+              No instructions available for this recipe.
+            </Text>
+          ) : (
+            instructions.map((item) => (
+              <View key={item.number} style={styles.stepCard}>
+                <Text style={styles.stepNumber}>Step {item.number}</Text>
+                <Text style={styles.stepText}>{item.step}</Text>
+              </View>
+            ))
           )}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default RecipeInstructionsScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5", // Soft background color
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    backgroundColor: "#f5f5f5",
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     color: "#333",
     textAlign: "center",
-    marginBottom: 20,
-    textTransform: "capitalize", // Makes the title consistent
+    marginVertical: 20,
+    paddingHorizontal: 20,
+    textTransform: "capitalize",
   },
-  listContainer: {
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 15,
+    paddingHorizontal: 20,
+  },
+  ingredientsSection: {
+    marginBottom: 20,
+  },
+  ingredientsGrid: {
+    paddingHorizontal: 10,
+  },
+  ingredientCard: {
+    flex: 1/3,
+    alignItems: "center",
+    padding: 10,
+    marginHorizontal: 5,
+    marginBottom: 15,
+  },
+  ingredientImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 8,
+    backgroundColor: "#fff",
+  },
+  ingredientName: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#555",
+    textTransform: "capitalize",
+  },
+  instructionsSection: {
+    paddingHorizontal: 20,
     paddingBottom: 20,
   },
   stepCard: {
@@ -148,4 +215,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
+export default RecipeInstructionsScreen;

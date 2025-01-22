@@ -1,8 +1,9 @@
 
-import {SPOONACULAR_API_KEY} from '@env'
+// import {SPOONACULAR_API_KEY} from '@env'
 export const fetchRecipesFromIngredients = async (ingredients) => {
     try {
       const ingredientsString = ingredients.join(',');
+      const apiKey = '289ecaf456ae4510984e0352ace95b8d';
       const apiUrl = 'https://api.spoonacular.com/recipes/findByIngredients';
       
       // Build URL with query parameters
@@ -10,7 +11,7 @@ export const fetchRecipesFromIngredients = async (ingredients) => {
       url.searchParams.append('ingredients', ingredientsString);
       url.searchParams.append('number', '10');
       url.searchParams.append('ranking', '1');
-      url.searchParams.append('apiKey', SPOONACULAR_API_KEY);
+      url.searchParams.append('apiKey', apiKey);
   
       const response = await fetch(url);
       

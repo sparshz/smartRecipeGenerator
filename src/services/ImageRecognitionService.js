@@ -1,104 +1,11 @@
 
+import { edibleItems } from '../components/constants/Edibles';
+import {convertImageToBase64} from '../helperfunctions/ConvertTobase'
+// import {GOOGLE_API_KEY} from '@env'
 
-
-import RNFS from 'react-native-fs';
-import {GOOGLE_API_KEY} from '@env'
-const edibleItems = new Set([
-  // Fruits (including synonyms and variations)
-  "Apple", "Banana", "Orange", "Tangerine", "Mango", "Pineapple", "Grape", "Strawberry", "Blueberry", "Raspberry", 
-  "Cherry", "Watermelon", "Kiwifruit", "Peach", "Pear", "Plum", "Pomegranate", "Apricot", "Coconut", 
-  "Papaya", "Lime", "Lemon", "Fig", "Date", "Melon", "Avocado", "Blackberry", "Cranberry", "Lychee", 
-  "Passionfruit", "Dragonfruit", "Guava", "Starfruit", "Persimmon","Graps",
-
-  // Vegetables
-  "Carrot", "Potato", "Tomato", "Onion", "Garlic", "Cucumber", "Pepper", "Spinach", "Lettuce", 
-  "Broccoli", "Cauliflower", "Cabbage", "Eggplant", "Zucchini", "Pumpkin", "Squash", "Radish", 
-  "Beetroot", "Peas", "Corn", "Asparagus", "Celery", "Okra", "Mushroom", "Ginger", "Parsley", "Basil", 
-  "Dill", "Mint", "Coriander", "Leek", "Turnip", "Shallot", "Chard", "Artichoke","Chili pepper",
-
-  // Dairy
-  "Milk", "Cheese", "Butter", "Yogurt", "Cream", "Paneer", "Ghee",
-
-  // Meat
-  "Chicken", "Beef", "Pork", "Lamb", "Turkey", "Fish", "Salmon", "Tuna", "Cod", "Shrimp", "Crab", 
-  "Lobster", "Scallops", "Clams", "Squid", "Octopus", "Bacon", "Sausage",
-
-  // Grains and Staples
-  "Rice", "Wheat", "Oats", "Barley", "Quinoa", "Pasta", "Bread", "Noodles", "Tortilla", "Bagel", 
-  "Croissant", "Pizza", "Pita", "Couscous", "Cereal","Sweet corn",
-
-  // Eggs
-  "Egg", "Chicken Egg", "Duck Egg", "Quail Egg",
-
-  // Sweets and Snacks
-  "Chocolate", "Sugar", "Candy", "Cake", "Cookies", "Donut", "Cupcake", "Brownie", "Ice Cream", 
-  "Popcorn", "Chips", "Pretzel", "Candy Bar", "Marshmallow",
-
-  // Beverages
-  "Coffee", "Tea", "Juice", "Smoothie", "Lemonade", "Milkshake", "Soda", "Wine", "Beer", "Cocktail", 
-  "Whiskey", "Vodka", "Rum", "Champagne", "Cider", "Water"
-]);
-
-// List of edible items (using Set for unique values)
 
 // Helper function to create a delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Main function to handle multiple images
-export const classifyMultipleImages = async (imageUris) => {
-  try {
-    console.log('Starting classification for multiple images:', imageUris);
-    
-    if (!Array.isArray(imageUris)) {
-      // If single image is passed, convert to array
-      imageUris = [imageUris];
-    }
-
-    // Process images sequentially with delay
-    const results = [];
-    for (let i = 0; i < imageUris.length; i++) {
-      const uri = imageUris[i];
-      try {
-        // Add 5-second delay between API calls (except for the first one)
-        if (i > 0) {
-          console.log(`Waiting 5 seconds before processing next image...`);
-          await delay(5000);
-        }
-        
-        const result = await classifyIngredients(uri);
-        results.push({
-          uri,
-          ingredients: result,
-          success: true
-        });
-      } catch (error) {
-        console.error(`Error processing image ${uri}:`, error);
-        results.push({
-          uri,
-          ingredients: [],
-          success: false,
-          error: error.message
-        });
-      }
-    }
-
-    // Combine all unique ingredients from successful results
-    const allUniqueIngredients = new Set();
-    results.forEach(result => {
-      if (result.success && result.ingredients) {
-        result.ingredients.forEach(ingredient => allUniqueIngredients.add(ingredient));
-      }
-    });
-
-    return {
-      combinedIngredients: Array.from(allUniqueIngredients),
-      individualResults: results
-    };
-  } catch (error) {
-    console.error('Error in batch processing:', error);
-    throw error;
-  }
-};
 
 // Function to classify single image using Google Cloud Vision API
 export const classifyIngredients = async (imageUri) => {
@@ -128,7 +35,8 @@ export const classifyIngredients = async (imageUri) => {
 
     // Make the API request using fetch
     console.log('Sending API request to Google Vision API...');
-    const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`;
+    const apiKey = 'AIzaSyBi8BuYHzL1NxhzCa1qVmmGjOugFpSUSfo';
+    const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -177,23 +85,6 @@ export const classifyIngredients = async (imageUri) => {
     }
   } catch (error) {
     console.error('Error classifying image:', error);
-    throw error;
-  }
-};
-
-// Helper function to convert image to base64
-const convertImageToBase64 = async (imageUri) => {
-  try {
-    if (!imageUri) {
-      throw new Error('No image URI provided');
-    }
-    
-    console.log('Converting image to base64:', imageUri);
-    const base64String = await RNFS.readFile(imageUri, 'base64');
-    console.log('Image converted to base64 successfully');
-    return base64String;
-  } catch (error) {
-    console.error('Error converting image to base64:', error);
     throw error;
   }
 };

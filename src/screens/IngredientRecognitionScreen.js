@@ -414,29 +414,6 @@ const IngredientRecognitionScreen = ({ navigation }) => {
         </View>
       )}
 
-      {/* {ingredients.length > 0 && (
-        <View style={styles.ingredientsContainer}>
-          <Text style={styles.sectionTitle}>Detected Ingredients</Text>
-          <ScrollView style={styles.ingredientsList}>
-            {ingredients.map((ingredient, index) => (
-              <View key={index} style={styles.ingredientItem}>
-                <Text style={styles.ingredientText}>{ingredient}</Text>
-              </View>
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity
-            style={styles.findRecipesButton}
-            onPress={findRecipes}
-            disabled={isLoading}
-          >
-            <Text style={styles.findRecipesText}>
-              {isLoading ? 'Loading...' : 'Find Recipes'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
-
       {ingredients.length > 0 && !isLoading && (
         <View style={styles.ingredientsContainer}>
           <Text style={styles.sectionTitle}>Detected Ingredients</Text>
