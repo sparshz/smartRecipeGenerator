@@ -18,6 +18,7 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { classifyIngredients } from '../services/ImageRecognitionService' // Ensure the correct import path
 import { Camera, ImagePlus, X } from 'lucide-react-native';
 import { fetchRecipesFromIngredients } from '../services/fetchRecipesFromIngredients';
+import LottieView from 'lottie-react-native';
 
 
 const ManualIngredientModal = ({ visible, onClose, onSubmit, associatedImage }) => {
@@ -98,10 +99,64 @@ const IngredientRecognitionScreen = ({ navigation }) => {
     setImageIngredientMap(newImageIngredientMap);
   };
 
+  // const handleImageAnalysis = async (uri) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const newIngredients = await classifyIngredients(uri);
+  //     if (newIngredients && newIngredients.length > 0) {
+  //       setIngredients((prev) => [...prev, ...newIngredients]);
+  //       setImageIngredientMap((prev) => ({
+  //         ...prev,
+  //         [uri]: newIngredients,
+  //       }));
+  //     } else {
+  //       Alert.alert(
+  //         'Image Analysis Failed',
+  //         'Sorry, couldn\'t analyze the image. Would you like to enter ingredients manually?',
+  //         [
+  //           {
+  //             text: 'Cancel',
+  //             style: 'cancel',
+  //           },
+  //           {
+  //             text: 'Enter Manually',
+  //             onPress: () => {
+  //               setCurrentImage(uri);
+  //               setShowManualInput(true);
+  //             },
+  //           },
+  //         ]
+  //       );
+  //     }
+  //   } catch (error) {
+  //     Alert.alert(
+  //       'Analysis Error',
+  //       'Sorry, could not analyze the image. Would you like to enter ingredients manually?',
+  //       [
+  //         {
+  //           text: 'Cancel',
+  //           style: 'cancel',
+  //         },
+  //         {
+  //           text: 'Enter Manually',
+  //           onPress: () => {
+  //             setCurrentImage(uri);
+  //             setShowManualInput(true);
+  //           },
+  //         },
+  //       ]
+  //     );
+  //   } finally {
+  //     setIsLoading(false); // Hide loader
+  //   }
+  // };
+
+
   const handleImageAnalysis = async (uri) => {
     setIsLoading(true);
     try {
       const newIngredients = await classifyIngredients(uri);
+  
       if (newIngredients && newIngredients.length > 0) {
         setIngredients((prev) => [...prev, ...newIngredients]);
         setImageIngredientMap((prev) => ({
@@ -116,12 +171,23 @@ const IngredientRecognitionScreen = ({ navigation }) => {
             {
               text: 'Cancel',
               style: 'cancel',
+              onPress: () => {
+                // Remove image from map and UI
+                setImageIngredientMap((prev) => {
+                  const updatedMap = { ...prev };
+                  delete updatedMap[uri];
+                  return updatedMap;
+                });
+  
+                // Remove the image from the display list
+                setImages((prev) => prev.filter((image) => image !== uri));
+              },
             },
             {
               text: 'Enter Manually',
               onPress: () => {
-                setCurrentImage(uri);
-                setShowManualInput(true);
+                setCurrentImage(uri); // Set the current image URI for manual addition
+                setShowManualInput(true); // Show the modal
               },
             },
           ]
@@ -135,12 +201,23 @@ const IngredientRecognitionScreen = ({ navigation }) => {
           {
             text: 'Cancel',
             style: 'cancel',
+            onPress: () => {
+              // Remove image from map and UI
+              setImageIngredientMap((prev) => {
+                const updatedMap = { ...prev };
+                delete updatedMap[uri];
+                return updatedMap;
+              });
+  
+              // Remove the image from the display list
+              setImages((prev) => prev.filter((image) => image !== uri));
+            },
           },
           {
             text: 'Enter Manually',
             onPress: () => {
-              setCurrentImage(uri);
-              setShowManualInput(true);
+              setCurrentImage(uri); // Set the current image URI for manual addition
+              setShowManualInput(true); // Show the modal
             },
           },
         ]
@@ -149,10 +226,13 @@ const IngredientRecognitionScreen = ({ navigation }) => {
       setIsLoading(false); // Hide loader
     }
   };
+  
+  
 
   const renderLoader = () => (
     <View style={styles.loaderContainer}>
       <ActivityIndicator size="large" color="#FF4081" />
+      {/* <LottieView source={require('../assets/animations/loading.json')} autoPlay loop height={100} width={100}/> */}
       <Text style={styles.loaderText}>Analyzing Image...</Text>
     </View>
   );
@@ -178,25 +258,6 @@ const IngredientRecognitionScreen = ({ navigation }) => {
     });
   };
 
-  // const openCamera = async () => {
-  //   const options = {
-  //     mediaType: 'photo',
-  //     quality: 1,
-  //   };
-  //   launchCamera(options, (response) => {
-  //     if (response.didCancel) {
-  //       console.log('User cancelled camera');
-  //     } else if (response.errorCode) {
-  //       console.error('Camera Error: ', response.errorMessage);
-  //     } else if (response.assets && response.assets.length > 0) {
-  //       const uri = response.assets[0].uri;
-  //       setImages((prev) => [...prev, uri]);
-  //       handleImageAnalysis(uri);
-  //     }
-  //   });
-  // };
-
-
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
       try {
@@ -216,29 +277,6 @@ const IngredientRecognitionScreen = ({ navigation }) => {
       }
     } else return true;
   };
-
-  const requestExternalWritePermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-          },
-        );
-        // If WRITE_EXTERNAL_STORAGE Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        // alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
-
-
-
 
   const openCamera = async () => {
 
@@ -272,31 +310,7 @@ const IngredientRecognitionScreen = ({ navigation }) => {
 
 
 
-    // try {
-    //   const options = {
-    //     mediaType: 'photo',
-    //     quality: 1,
-    //   };
-
-    // launchCamera(options, (response) => {
-    //   if (response.didCancel) {
-    //     console.log('User cancelled camera');
-    //   } else if (response.errorCode) {
-    //     console.error('Camera Error: ', response.errorMessage);
-    //   } else if (response.assets && response.assets.length > 0) {
-    //     console.log('hiii');
-    //     const uri = response.assets[0].uri;
-    //     setImages((prev) => [...prev, uri]); // Add the image URI to the state
-    //     handleImageAnalysis(uri); // Analyze the captured image
-
-    //   } else {
-    //     Alert.alert('Error', 'No photo was captured.');
-    //   }
-    // });
-    // } catch (error) {
-    //   console.error('Unexpected camera error: ', error);
-    //   Alert.alert('Error', 'An unexpected error occurred while accessing the camera.');
-    // }
+    
   };
 
 
@@ -315,24 +329,6 @@ const IngredientRecognitionScreen = ({ navigation }) => {
     }
     navigation.navigate('DietaryPreference', { ingredients });
   };
-
-
-  // const findRecipes = async () => {
-  //   if (ingredients.length === 0) {
-  //     Alert.alert('No Ingredients', 'No ingredients detected! Add ingredients to proceed.');
-  //     return;
-  //   }
-  //   setIsLoading(true);
-  //   try {
-  //     const recipes = await fetchRecipesFromIngredients(ingredients);
-  //     navigation.navigate('RecipeSuggestions', { recipes });
-  //   } catch (error) {
-  //     console.error('Error fetching recipes:', error);
-  //     Alert.alert('Error', 'Unable to fetch recipes. Please try again.');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
 
 
@@ -362,30 +358,6 @@ const IngredientRecognitionScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* {images.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.imageContainer}
-        >
-          {images.map((imageUri, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => removeImage(index)}
-              >
-                <X color="#FF4081" size={20} />
-              </TouchableOpacity>
-              <Image source={{ uri: imageUri }} style={styles.image} />
-            </View>
-          ))}
-        </ScrollView>
-      ) : (
-        <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>No images selected yet</Text>
-          <Text style={styles.emptyStateSubtext}>Take a photo or upload from gallery</Text>
-        </View>
-      )} */}
 
       {isLoading ? (
         renderLoader()
@@ -668,6 +640,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    // height:150,
+    // width:150
   },
   loaderText: {
     marginTop: 10,

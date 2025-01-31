@@ -1,7 +1,7 @@
 
 import { edibleItems } from '../components/constants/Edibles';
 import {convertImageToBase64} from '../helperfunctions/ConvertTobase'
-// import {GOOGLE_API_KEY} from '@env'
+import {GOOGLE_KEY} from '@env'
 
 
 // Helper function to create a delay
@@ -35,8 +35,8 @@ export const classifyIngredients = async (imageUri) => {
 
     // Make the API request using fetch
     console.log('Sending API request to Google Vision API...');
-    const apiKey = 'AIzaSyBi8BuYHzL1NxhzCa1qVmmGjOugFpSUSfo';
-    const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
+
+    const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',

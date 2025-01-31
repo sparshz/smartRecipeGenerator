@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import {SPOONCULAR_API_KEY} from '@env'
 
 const RecipeInstructionsScreen = ({ route }) => {
   const { recipeId, recipeTitle } = route.params;
@@ -19,8 +20,8 @@ const RecipeInstructionsScreen = ({ route }) => {
 
   useEffect(() => {
     const fetchInstructions = async () => {
-      const apiKey = "289ecaf456ae4510984e0352ace95b8d";
-      const url = `https://api.spoonacular.com/recipes/${recipeId}/analyzedInstructions?apiKey=${apiKey}`;
+
+      const url = `https://api.spoonacular.com/recipes/${recipeId}/analyzedInstructions?apiKey=${SPOONCULAR_API_KEY}`;
       try {
         const response = await fetch(url);
         if (!response.ok) {

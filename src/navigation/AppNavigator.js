@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
 import IngredientRecognitionScreen from '../screens/IngredientRecognitionScreen';
 import RecipeSuggestionsScreen from '../screens/RecipeSuggestionsScreen';
-import SubstitutionScreen from '../screens/SubstitutionScreen';
+
 // import IngredientRecognitionCamera from '../screens/IngredientRecognitionCamera'; // Correct import
 import RecipeInstructionsScreen from '../screens/RecipeInstructionsScreen'; // Add this import
 import DietaryPreferencesScreen from '../screens/DietaryPreferenceScreen';
@@ -27,16 +27,6 @@ const AppNavigator = () => {
         component={RecipeSuggestionsScreen}
         options={{ title: 'Recipe Suggestions' }}
       />
-      <Stack.Screen
-        name="Substitution"
-        component={SubstitutionScreen}
-        options={{ title: 'Ingredient Substitutions' }}
-      />
-      {/* <Stack.Screen
-        name="IngredientRecognitionCamera"
-        component={IngredientRecognitionCamera}
-        options={{ title: 'Camera Recognition' }}
-      /> */}
       <Stack.Screen
         name="RecipeInstructions"
         component={RecipeInstructionsScreen}

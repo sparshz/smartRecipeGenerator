@@ -10,9 +10,10 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-// import {SPOONACULAR_API_KEY} from '@env'
+
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
+import { SPOONCULAR_API_KEY } from '@env';
 
 const RecipeSuggestionsScreen = ({ route }) => {
   const { dietaryPreferences, ingredients } = route.params; // Get dietary preferences and ingredients from route params
@@ -28,7 +29,7 @@ const RecipeSuggestionsScreen = ({ route }) => {
     try {
       const ingredientsQuery = ingredients.join(',');
       const dietQuery = dietaryPreferences.join(',');
-      const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?apiKey=289ecaf456ae4510984e0352ace95b8d&includeIngredients=${encodeURIComponent(
+      const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${SPOONCULAR_API_KEY}&includeIngredients=${encodeURIComponent(
         ingredientsQuery
       )}&diet=${encodeURIComponent(dietQuery)}&number=20`;
 
@@ -62,7 +63,7 @@ const RecipeSuggestionsScreen = ({ route }) => {
 
   const renderCookingInfo = (recipe) => (
     <View style={styles.cookingInfo}>
-      <Text style={styles.infoText}>👥 {recipe.servings || "4"} servings</Text>
+      {/* <Text style={styles.infoText}>👥 {recipe.servings || "4"} servings</Text> */}
     </View>
   );
 
@@ -70,7 +71,7 @@ const RecipeSuggestionsScreen = ({ route }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=289ecaf456ae4510984e0352ace95b8d`
+        `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${SPOONCULAR_API_KEY}`
       );
       const data = await response.json();
       navigation.navigate('RecipeInstructions', {

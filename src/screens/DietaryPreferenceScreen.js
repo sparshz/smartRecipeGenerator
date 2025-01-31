@@ -1,14 +1,9 @@
-
-
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { dietaryOptions } from '../components/constants/DietaryOptions';
 
-
 const { width } = Dimensions.get('window');
-
-
 
 const DietaryPreferencesScreen = ({ route }) => {
   const navigation = useNavigation();
