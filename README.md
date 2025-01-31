@@ -58,12 +58,12 @@ The Recipe Suggestion App is an innovative platform designed to simplify meal pr
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/recipe-suggestion-app.git
+   gh repo clone sparshz/smartRecipeGenerator
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd recipe-suggestion-app
+   cd smartRecipeGenerator
    ```
 
 3. Install dependencies:
